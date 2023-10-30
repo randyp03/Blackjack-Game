@@ -149,6 +149,14 @@ def player_turn(player, deck):
         else:
             for hand in both_hands:
                 print(f'\n{player["Name"]}, dealer is now dealing to {hand["Which Hand"]}')
+                hit(hand["Hand"], deck)
+                print(f'\n{player["Name"]}, here is your new hand:')
+                for card in hand["Hand"]:
+                    print(card)
+                # Automatically end the player's turn if they draw a natural hand without splitting Aces
+                if get_total(hand) == 21:
+                    print('\nYou got blackjack!')
+                    continue
                 while True:
                     option = input('\nDo you want to stand or hit? ')
                     # ends player's turn if they decide to stand
