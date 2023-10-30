@@ -1,6 +1,6 @@
 # Blackjack
 
-import game_functions, json
+import game_functions
 
 running = True
 
@@ -13,21 +13,22 @@ while running:
     # starts the game by creating players, and dealing cards
     players, deck = game_functions.start_game()
 
-    # check if possibility of insurance
-    if game_functions.check_face_up(players[-1]) == 'A':
-        game_functions.display_hand(players[-1])
-        print("\nDealer has an ace up. Dealer has opened the option for insurance.")
-        for player in players:
-            if game_functions.isDealer(player):
-                break
-            else:
-                has_insurance = input(f'\n{player["Name"]}, do you want to place an insurance bet (y/n)? ')
-                if has_insurance.lower().startswith('y'):
-                    player["Insurance"] = True
-                    print(f'\n{player["Name"]} has placed insurance')
-
-    # check if dealer has a natural blackjack
+    # check if there is possibility of dealer having natural hand and opening up chance for insurance bets if Ace-up
     if game_functions.check_face_up(players[-1]) == 'A' or game_functions.check_face_up(players[-1]) == 'ten-card':
+        game_functions.display_hand(players[-1])
+        # check if possibility of insurance
+        if game_functions.check_face_up(players[-1]) == 'A':
+            print("\nDealer has an ace up. Dealer has opened the option for insurance.")
+            for player in players:
+                if game_functions.isDealer(player):
+                    break
+                else:
+                    has_insurance = input(f'\n{player["Name"]}, do you want to place an insurance bet (y/n)? ')
+                    if has_insurance.lower().startswith('y'):
+                        player["Insurance"] = True
+                        print(f'\n{player["Name"]} has placed insurance')
+        # after insurance bets are placed, check if dealer has blackjack
+        print("\nDealer will check if they have a natural hand")
         if game_functions.get_total(players[-1]) == 21:
             print("\nDealer has natural blackjack!")
             players[-1]["Natural"] = True
@@ -57,10 +58,10 @@ while running:
             # checking whether player also has natural hand
             if game_functions.get_total(player) == 21:
                 player["Natural"] = True
-                print(f'\n{player["Name"]}, You also got natural blackjack! Lucky you.')
+                print(f'\n{player["Name"]}, you also got natural blackjack! Lucky you.')
                 continue
             else:
-                print(f'\n{player["Name"]}, You don\'t have a natural hand. Tough luck.')
+                print(f'\n{player["Name"]}, you don\'t have a natural hand. Tough luck.')
                 continue
         # if not dealer, and dealer doesn't have natural hand, proceed normally
         else:
@@ -75,27 +76,27 @@ while running:
                 player["Natural"] = True
                 print(f'\n{player["Name"]}, you have a natural hand, and the dealer doesn\'t. You win!')
                 continue
+            # checks if the player has option to split their pair
+            elif player["Hand"][0][0] == player["Hand"][1][0]:
+                split_pair = input(f'\nDo you want to split your pair (y/n)? ')
+                # if player chooses to split pair,
+                # remove second card from original hand and place into second hand
+                if split_pair.lower().startswith('y'):
+                    player["Split"] = True
+                    print('\nYou have chosen to split your pair.')
+                    player["Hand2"].append(player["Hand"].pop(1))
+                    game_functions.player_turn(player, deck)
+                # if player rejects split option, play hand normally
+                elif split_pair.lower().startswith('n'):
+                    print('\nYou have chosen not to split your pair')
+                    game_functions.player_turn(player, deck)
+                # game will automatically reject split option if player presses wrong key
+                else:
+                    print('\nThat is not one of the options. You will automatically reject split option.')
+                    game_functions.player_turn(player, deck)
+            # if player doesn't have natural blackjack and can't split their pair, play their turn normally
             else: 
-                while True:
-                    option = input('\nDo you want to stand or hit? ')
-                    if option.lower() == 'stand':
-                        break
-                    elif option.lower() == 'hit':
-                        game_functions.hit(player, deck)
-                        print(f'\n{player["Name"]}, here is your new hand:')
-                        for card in player["Hand"]:
-                            print(card)
-                        # Automatically end the player's turn if they draw a blackjack or bust
-                        if game_functions.get_total(player) == 21:
-                            print('\nYou got blackjack!')
-                            break
-                        elif game_functions.get_total(player) > 21:
-                            print('\nBusted. You lose.')
-                            break
-                        else:
-                            continue
-                    else:
-                        print('\nThat is not one of the options. Please try again.')
+                game_functions.player_turn(player, deck)
 
     # dealer has their turn
     game_functions.dealer_turn(players[-1], deck)
@@ -103,7 +104,7 @@ while running:
     game_functions.get_result(players)
     
     while True:
-        play_again = input('\nDo you want to play again? (y/n)')
+        play_again = input('\nDo you want to play again (y/n)? ')
         if play_again.lower().startswith('y'):
             break
         elif play_again.lower().startswith('n'):
