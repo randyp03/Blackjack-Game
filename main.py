@@ -76,6 +76,21 @@ while running:
                 player["Natural"] = True
                 print(f'\n{player["Name"]}, you have a natural hand, and the dealer doesn\'t. You win!')
                 continue
+            # check if player has the option to double down
+            elif 9<= game_functions.get_total(player) <= 11:
+                print(f'\nYour hand values to {game_functions.get_total(player)}')
+                double_down = input(f'\nDo you want to double down (y/n)? ')
+                if double_down.lower().startswith('y'):
+                    player["DoubleDown"] = True
+                    print('\nYou have chosen the option to double down.')
+                    game_functions.player_turn(player, deck)
+                elif double_down.lower().startswith('n'):
+                    print('\nYou have chosen not to double down')
+                    game_functions.player_turn(player, deck)
+                # game will automatically reject split option if player presses wrong key
+                else:
+                    print('\nThat is not one of the options. You will automatically reject split option.')
+                    game_functions.player_turn(player, deck)
             # checks if the player has option to split their pair
             elif player["Hand"][0][0] == player["Hand"][1][0]:
                 split_pair = input(f'\nDo you want to split your pair (y/n)? ')

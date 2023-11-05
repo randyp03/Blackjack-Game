@@ -182,6 +182,9 @@ def player_turn(player, deck):
         # updates players hands after their turn is over
         player["Hand"] = both_hands[0]["Hand"]
         player["Hand2"] = both_hands[1]["Hand"]
+    elif player["DoubleDown"]:
+        print(f'\n{player["Name"]} the dealer will add one card, faced down, to your hand')
+        hit(player["Hand"], deck)
     # if player didn't split pair or double down, play their turn normally
     else:
         while True:
